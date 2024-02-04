@@ -1,0 +1,5 @@
+nats:
+    clusterID: "test-cluster"
+    clientID: "client1"
+    url: "nats://localhost:4222"
+    subject: "test"

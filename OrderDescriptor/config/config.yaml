@@ -1,0 +1,15 @@
+postgres:
+    host: "localhost"
+    port: "5432"
+    user: "postgres"
+    password: "postgres"
+    dbname: "WB_Tech_L0"
+    sslMode: "disable"
+http:
+    ip: "localhost"
+    port: ":8080"
+nats:
+    clusterID: "test-cluster"
+    clientID: "client2"
+    url: "nats://localhost:4222"
+    subject: "test"
