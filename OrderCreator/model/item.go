@@ -5,7 +5,7 @@ type Item struct {
 	OrderID     string `db:"order_id" json:"order_id,omitempty"`
 	ChrtID      int    `db:"chrt_id" json:"chrt_id"`
 	TrackNumber string `db:"track_number" json:"track_number"`
-	Price       int    `db:"price" jjson:"price"`
+	Price       int    `db:"price" json:"price"`
 	Rid         string `db:"rid" json:"rid"`
 	Name        string `db:"item_name" json:"name"`
 	Sale        int    `db:"sale" json:"sale"`

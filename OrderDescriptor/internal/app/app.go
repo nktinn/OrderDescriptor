@@ -1,16 +1,19 @@
 package app
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/config"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/controller"
 	natsSub "github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/controller/nats"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/repo"
+	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/service"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/pkg/postgres"
 	"github.com/nktinn/OrderDescriptor/pkg/nats"
-	log "github.com/sirupsen/logrus"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func Run(configPath string) {
@@ -33,14 +36,16 @@ func Run(configPath string) {
 	log.Infoln("Connected to the database")
 	defer pg.Close()
 
-	// New repositories
-	repositories := repo.NewRepositories(pg)
-	memrepos := repo.NewMemoryRepo(repositories)
+	// New repositories and services
+	dbRepos := repo.NewDBRepositories(pg)
+	memRepos := &repo.Repositories{}
+	services := service.NewServices(dbRepos, memRepos)
+	services.Order.InitMemory()
 	log.Infoln("Created repositories")
 
 	// Start server
 	go func() {
-		controller.StartServer(cfg.HTTP, repositories, memrepos)
+		controller.StartServer(cfg.HTTP, services)
 	}()
 	log.Infoln("Started server")
 
@@ -55,7 +60,7 @@ func Run(configPath string) {
 	defer natsConn.CloseConnection()
 
 	// Subscribe to nats-streaming
-	natsSubscriber := natsSub.NewSubscriber(natsConn.SC, memrepos)
+	natsSubscriber := natsSub.NewSubscriber(natsConn.SC, services)
 	if natsSubscriber == nil {
 		log.Error("Unable to connect to nats-streaming")
 	}

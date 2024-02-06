@@ -3,25 +3,20 @@ package pgdb
 import (
 	"context"
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/model"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/pkg/postgres"
-	log "github.com/sirupsen/logrus"
 )
 
 type OrderRepo struct {
 	pg *postgres.Postgres
-
-	deliveryRepo *DeliveryRepo
-	paymentRepo  *PaymentRepo
-	itemRepo     *ItemRepo
 }
 
-func NewOrderRepo(pg *postgres.Postgres, deliveryRepo *DeliveryRepo, paymentRepo *PaymentRepo, itemRepo *ItemRepo) *OrderRepo {
+func NewOrderRepo(pg *postgres.Postgres) *OrderRepo {
 	return &OrderRepo{
-		pg:           pg,
-		deliveryRepo: deliveryRepo,
-		paymentRepo:  paymentRepo,
-		itemRepo:     itemRepo,
+		pg: pg,
 	}
 }
 
@@ -72,22 +67,6 @@ func (r *OrderRepo) GetOrder(uid string) (*model.Order, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get order: %v", err)
 	}
-	delivery, err := r.deliveryRepo.GetDelivery(order.OrderUID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get delivery by order: %v", err)
-	}
-	order.Delivery = delivery
-	payment, err := r.paymentRepo.GetPayment(order.OrderUID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get payment by order: %v", err)
-	}
-	order.Payment = payment
-	items, err := r.itemRepo.GetItemsByID(order.OrderUID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get items by order: %v", err)
-	}
-	order.Items = items
-
 	return order, nil
 }
 
@@ -120,24 +99,6 @@ func (r *OrderRepo) GetAllOrders() []model.Order {
 			log.Errorf("failed to scan orders: %v", err)
 			return nil
 		}
-		delivery, dErr := r.deliveryRepo.GetDelivery(order.OrderUID)
-		if dErr != nil {
-			log.Errorf("failed to get delivery by order: %v", err)
-			return nil
-		}
-		order.Delivery = delivery
-		payment, pErr := r.paymentRepo.GetPayment(order.OrderUID)
-		if pErr != nil {
-			log.Errorf("failed to get payment by order: %v", err)
-			return nil
-		}
-		order.Payment = payment
-		items, iErr := r.itemRepo.GetItemsByID(order.OrderUID)
-		if iErr != nil {
-			log.Errorf("failed to get items by order: %v", err)
-			return nil
-		}
-		order.Items = items
 
 		orders = append(orders, order)
 	}
@@ -155,5 +116,17 @@ func (r *OrderRepo) DeleteOrder(uid string) error {
 		return err
 	}
 	log.Infof("Order %s deleted from db", uid)
+	return nil
+}
+
+func (r *OrderRepo) DeleteAllOrders() error {
+	sql := `DELETE FROM orders`
+	_, err := r.pg.Pool.Exec(context.Background(), sql)
+
+	if err != nil {
+		log.Errorf("failed to delete all orders from db: %v", err)
+		return err
+	}
+	log.Infoln("All orders deleted from db")
 	return nil
 }

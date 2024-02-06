@@ -3,9 +3,10 @@ package router
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/valyala/fasthttp"
-	"os"
 )
 
 func (r *Router) Render(ctx *fasthttp.RequestCtx) {
@@ -25,10 +26,10 @@ func (r *Router) Render(ctx *fasthttp.RequestCtx) {
 func (r *Router) GetOrder(ctx *fasthttp.RequestCtx) {
 	uid := ctx.UserValue("id").(string)
 	log.Infoln("Received GET order request /", uid)
-	order := r.memrepo.GetFullOrder(uid)
-	if order == nil {
+	order, err := r.services.Order.GetFullOrder(uid)
+	if err != nil {
 		ctx.Error("Order not found", fasthttp.StatusNotFound)
-		log.Errorf("Unable to find order with uid %s", uid)
+		log.Errorf("Unable to find order with uid %s: %v", uid, err)
 		return
 	}
 	jsonData, _ := json.Marshal(order)
@@ -40,7 +41,7 @@ func (r *Router) GetOrder(ctx *fasthttp.RequestCtx) {
 func (r *Router) DeleteOrders(ctx *fasthttp.RequestCtx) {
 	log.Infoln("Received DELETE request")
 
-	if err := r.memrepo.DeleteAll(); err != nil {
+	if err := r.services.Order.DeleteAll(); err != nil {
 		ctx.Error(fmt.Sprintf("Unable to delete orders: %v", err), fasthttp.StatusInternalServerError)
 		log.Errorf("Unable to delete orders: %v", err)
 		return

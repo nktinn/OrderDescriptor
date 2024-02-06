@@ -3,12 +3,14 @@ package publisher
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/stan.go"
-	"github.com/nktinn/OrderDescriptor/OrderCreator/model"
-	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/nats-io/stan.go"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/nktinn/OrderDescriptor/OrderCreator/model"
 )
 
 func randomString(randGenerator *rand.Rand, length int) string {
@@ -98,10 +100,12 @@ func Publish(natsConn stan.Conn, subject string) error {
 
 	msg, err := json.Marshal(order)
 	if err != nil {
+		log.Errorf("error marshalling order: %v", err)
 		return err
 	}
 	err = natsConn.Publish(subject, msg)
 	if err != nil {
+		log.Errorf("error publishing order: %v", err)
 		return err
 	}
 	return nil

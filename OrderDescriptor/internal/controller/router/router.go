@@ -2,20 +2,19 @@ package router
 
 import (
 	"github.com/fasthttp/router"
-	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/repo"
 	"github.com/valyala/fasthttp"
+
+	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/service"
 )
 
 type Router struct {
-	repos   *repo.Repositories
-	memrepo *repo.MemoryRepo
+	services *service.Services
 }
 
-func NewRouter(repositories *repo.Repositories, memrepository *repo.MemoryRepo) *router.Router {
+func NewRouter(services *service.Services) *router.Router {
 	// Constructor
 	r := &Router{
-		repos:   repositories,
-		memrepo: memrepository,
+		services: services,
 	}
 
 	routes := router.New()

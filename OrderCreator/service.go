@@ -1,14 +1,16 @@
 package main
 
 import (
-	"github.com/nktinn/OrderDescriptor/OrderCreator/publisher"
-	"github.com/nktinn/OrderDescriptor/OrderDescriptor/config"
-	"github.com/nktinn/OrderDescriptor/pkg/nats"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/nktinn/OrderDescriptor/OrderCreator/publisher"
+	"github.com/nktinn/OrderDescriptor/OrderDescriptor/config"
+	"github.com/nktinn/OrderDescriptor/pkg/nats"
 )
 
 const configPath = "OrderCreator/config/config.yaml"

@@ -3,9 +3,11 @@ package pgdb
 import (
 	"context"
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/model"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/pkg/postgres"
-	log "github.com/sirupsen/logrus"
 )
 
 type DeliveryRepo struct {
@@ -105,5 +107,17 @@ func (r *DeliveryRepo) DeleteDelivery(uid string) error {
 		return err
 	}
 	log.Infoln("Delivery deleted from db")
+	return nil
+}
+
+func (r *DeliveryRepo) DeleteAllDeliveries() error {
+	sql := `DELETE FROM deliveries`
+
+	_, err := r.pg.Pool.Exec(context.Background(), sql)
+	if err != nil {
+		log.Errorf("Failed to delete all deliveries from db: %v", err)
+		return err
+	}
+	log.Infoln("All deliveries deleted from db")
 	return nil
 }

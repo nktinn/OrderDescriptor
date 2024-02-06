@@ -3,23 +3,25 @@ package sub
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/nats-io/stan.go"
-	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/model"
-	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/repo"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/model"
+	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/service"
 )
 
 type NatsSubscriber struct {
-	memrepo *repo.MemoryRepo
-	sc      stan.Conn
-	sub     map[string]stan.Subscription
+	orderService *service.Services
+	sc           stan.Conn
+	sub          map[string]stan.Subscription
 }
 
-func NewSubscriber(sc stan.Conn, memrepo *repo.MemoryRepo) *NatsSubscriber {
+func NewSubscriber(sc stan.Conn, services *service.Services) *NatsSubscriber {
 	return &NatsSubscriber{
-		memrepo: memrepo,
-		sc:      sc,
-		sub:     make(map[string]stan.Subscription),
+		orderService: services,
+		sc:           sc,
+		sub:          make(map[string]stan.Subscription),
 	}
 }
 
@@ -33,7 +35,7 @@ func (n *NatsSubscriber) Subscribe(subject string) error {
 			return
 		}
 		log.Infoln("Order validated")
-		err = n.memrepo.CreateOrder(order)
+		err = n.orderService.CreateOrder(order)
 		if err != nil {
 			log.Errorf("Subscribe method finished with error")
 			return

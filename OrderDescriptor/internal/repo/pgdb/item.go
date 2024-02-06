@@ -3,9 +3,11 @@ package pgdb
 import (
 	"context"
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/model"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/pkg/postgres"
-	log "github.com/sirupsen/logrus"
 )
 
 type ItemRepo struct {
@@ -139,5 +141,17 @@ func (r *ItemRepo) DeleteItems(uid string) error {
 		return err
 	}
 	log.Infoln("Items deleted from db")
+	return nil
+}
+
+func (r *ItemRepo) DeleteAllItems() error {
+	sql := `DELETE FROM items`
+
+	_, err := r.pg.Pool.Exec(context.Background(), sql)
+	if err != nil {
+		log.Errorf("Failed to delete all items from db: %v", err)
+		return err
+	}
+	log.Infoln("All items deleted from db")
 	return nil
 }

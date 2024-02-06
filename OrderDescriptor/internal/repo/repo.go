@@ -2,56 +2,67 @@ package repo
 
 import (
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/model"
+	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/repo/memory"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/repo/pgdb"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/pkg/postgres"
 )
 
-type DBPayment interface {
+type Payment interface {
 	CreatePayment(payment model.Payment) error
 	GetPayment(id string) (*model.Payment, error)
 	GetAllPayments() []model.Payment
 	DeletePayment(uid string) error
+	DeleteAllPayments() error
 }
 
-type DBDelivery interface {
+type Delivery interface {
 	CreateDelivery(delivery model.Delivery) error
 	GetDelivery(id string) (*model.Delivery, error)
 	GetAllDeliveries() []model.Delivery
 	DeleteDelivery(uid string) error
+	DeleteAllDeliveries() error
 }
 
-type DBOrder interface {
+type Order interface {
 	CreateOrder(order model.Order) error
 	GetOrder(uid string) (*model.Order, error)
 	GetAllOrders() []model.Order
 	DeleteOrder(uid string) error
+	DeleteAllOrders() error
 }
 
-type DBItem interface {
+type Item interface {
 	CreateItem(item model.Item) error
 	CreateItems(items []model.Item) error
 	GetItemsByID(id string) ([]model.Item, error)
 	GetAllItems() []model.Item
 	DeleteItems(uid string) error
+	DeleteAllItems() error
 }
 
 type Repositories struct {
-	DBPayment
-	DBDelivery
-	DBOrder
-	DBItem
+	Payment
+	Delivery
+	Order
+	Item
 }
 
-func NewRepositories(pg *postgres.Postgres) *Repositories {
-	deliveryRepo := pgdb.NewDeliveryRepo(pg)
-	paymentRepo := pgdb.NewPaymentRepo(pg)
-	itemRepo := pgdb.NewItemRepo(pg)
-	orderRepo := pgdb.NewOrderRepo(pg, deliveryRepo, paymentRepo, itemRepo)
-
+// Database repositories constructor
+func NewDBRepositories(pg *postgres.Postgres) *Repositories {
 	return &Repositories{
-		DBPayment:  paymentRepo,
-		DBDelivery: deliveryRepo,
-		DBOrder:    orderRepo,
-		DBItem:     itemRepo,
+		Payment:  pgdb.NewPaymentRepo(pg),
+		Delivery: pgdb.NewDeliveryRepo(pg),
+		Order:    pgdb.NewOrderRepo(pg),
+		Item:     pgdb.NewItemRepo(pg),
+	}
+}
+
+// In-Memory repositories constructor
+func NewMemoryRepositories(orders []model.Order, deliveries []model.Delivery, payments []model.Payment, items []model.Item) *Repositories {
+	return &Repositories{
+		Payment:  memory.NewPaymentRepo(payments),
+		Delivery: memory.NewDeliveryRepo(deliveries),
+		Order:    memory.NewOrderRepo(orders),
+		Item:     memory.NewItemRepo(items),
 	}
 }

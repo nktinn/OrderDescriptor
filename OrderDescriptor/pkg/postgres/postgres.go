@@ -3,10 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nktinn/OrderDescriptor/OrderDescriptor/config"
-	log "github.com/sirupsen/logrus"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/nktinn/OrderDescriptor/OrderDescriptor/config"
 )
 
 const (

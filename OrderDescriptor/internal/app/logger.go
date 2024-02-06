@@ -1,8 +1,9 @@
 package app
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 func SetLogger() {

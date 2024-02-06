@@ -3,9 +3,11 @@ package pgdb
 import (
 	"context"
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/internal/model"
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/pkg/postgres"
-	log "github.com/sirupsen/logrus"
 )
 
 type PaymentRepo struct {
@@ -113,5 +115,17 @@ func (r *PaymentRepo) DeletePayment(uid string) error {
 		return err
 	}
 	log.Infoln("Payment deleted from db")
+	return nil
+}
+
+func (r *PaymentRepo) DeleteAllPayments() error {
+	sql := `DELETE FROM payments`
+
+	_, err := r.pg.Pool.Exec(context.Background(), sql)
+	if err != nil {
+		log.Errorf("Failed to delete all payments from db: %v", err)
+		return err
+	}
+	log.Infoln("All payments deleted from db")
 	return nil
 }

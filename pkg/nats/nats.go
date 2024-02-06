@@ -2,6 +2,7 @@ package nats
 
 import (
 	"github.com/nats-io/stan.go"
+
 	"github.com/nktinn/OrderDescriptor/OrderDescriptor/config"
 )
 
