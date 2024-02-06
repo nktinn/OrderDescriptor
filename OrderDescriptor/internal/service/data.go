@@ -107,34 +107,18 @@ func (ord *OrderService) GetFullOrder(uid string) (*model.Order, error) {
 func (ord *OrderService) DeleteAll() error {
 	var err error
 	for _, order := range ord.memRepos.GetAllOrders() {
+		log.Infoln("Deleting order: ", order.OrderUID)
 		err = ord.dbRepos.DeleteOrder(order.OrderUID)
 		if err != nil {
 			log.Errorf("Failed to delete order: %v", err)
 			return err
 		}
-		ord.memRepos.DeleteOrder(order.OrderUID)
-
-		err = ord.dbRepos.DeleteDelivery(order.OrderUID)
-		if err != nil {
-			log.Errorf("Failed to delete delivery: %v", err)
-			return err
-		}
-		ord.memRepos.DeleteDelivery(order.OrderUID)
-
-		err = ord.dbRepos.DeleteItems(order.OrderUID)
-		if err != nil {
-			log.Errorf("Failed to delete items: %v", err)
-			return err
-		}
-		ord.memRepos.DeleteItems(order.OrderUID)
-
-		err = ord.dbRepos.DeletePayment(order.OrderUID)
-		if err != nil {
-			log.Errorf("Failed to delete payment: %v", err)
-			return err
-		}
-		ord.memRepos.DeleteOrder(order.OrderUID)
 	}
+
+	ord.memRepos.DeleteAllOrders()
+	ord.memRepos.DeleteAllDeliveries()
+	ord.memRepos.DeleteAllItems()
+	ord.memRepos.DeleteAllOrders()
 
 	return nil
 }

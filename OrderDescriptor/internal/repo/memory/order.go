@@ -67,36 +67,3 @@ func (ord *OrderRepo) DeleteAllOrders() error {
 	log.Infoln("All orders deleted from memory")
 	return nil
 }
-
-/*
-func (ord *OrderRepo) GetFullOrder(uid string) *model.Order {
-	ord.sm.RLock()
-	defer ord.sm.RUnlock()
-
-	order := ord.GetOrder(uid)
-	if order == nil {
-		log.Errorf("Order not found while getting full order")
-		return nil
-	}
-	delivery := ord.GetDelivery(order.OrderUID)
-	if delivery == nil {
-		log.Errorf("Delivery not found while getting full order")
-		return nil
-	}
-	payment := ord.GetPayment(order.OrderUID)
-	if payment == nil {
-		log.Errorf("Payment not found while getting full order")
-		return nil
-	}
-	items := ord.GetItemsByID(order.OrderUID)
-	if items == nil {
-		log.Errorf("Items not found while getting full order")
-		return nil
-	}
-
-	order.Payment = payment
-	order.Delivery = delivery
-	order.Items = items
-
-	return order
-}*/
